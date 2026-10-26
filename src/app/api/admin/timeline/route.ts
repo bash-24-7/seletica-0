@@ -44,7 +44,6 @@ export async function POST(request: Request) {
         year: body.year,
         title: body.title,
         description: body.description,
-        image: body.image,
         order: body.order || 0
       }
     });

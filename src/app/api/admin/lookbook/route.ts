@@ -24,7 +24,7 @@ export async function GET() {
   if (!isAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const lookbooks = await prisma.lookbook.findMany({ orderBy: { createdAt: 'desc' } });
+    const lookbooks = await prisma.lookbookItem.findMany({ orderBy: { createdAt: 'desc' } });
     return NextResponse.json({ success: true, lookbooks });
   } catch (error) {
     return NextResponse.json({ success: true, lookbooks: [] });
@@ -39,13 +39,11 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const lookbook = await prisma.lookbook.create({
+    const lookbook = await prisma.lookbookItem.create({
       data: {
         title: body.title,
-        slug: body.slug,
-        description: body.description,
-        images: body.images || [],
-        published: body.published || false
+        season: body.season || 'FW26',
+        image: body.images ? body.images[0] : '',
       }
     });
     return NextResponse.json({ success: true, lookbook }, { status: 201 });

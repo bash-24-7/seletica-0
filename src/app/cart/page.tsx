@@ -76,7 +76,21 @@ export default function CartPage() {
                       <Trash2 size={18} />
                     </button>
                   </div>
-                  <p className="text-sm text-brand-ash mb-4">Size: Medium</p> {/* Placeholder for actual size logic if implemented later */}
+                  <div className="text-xs text-brand-ash mb-4 space-y-1">
+                    {item.fittingType === "tailor" && (
+                      <>
+                        <p className="uppercase tracking-widest text-[10px] text-brand-white">Bespoke: At-Home Tailor</p>
+                        <p>Tailor: {item.tailorGender}</p>
+                        <p>Date/Time: {item.tailorDate || "TBD"}</p>
+                      </>
+                    )}
+                    {item.fittingType === "measurements" && (
+                      <>
+                        <p className="uppercase tracking-widest text-[10px] text-brand-white">Bespoke: Provided Measurements</p>
+                        <p className="truncate max-w-[200px]">{item.measurementsDetails || "No details provided"}</p>
+                      </>
+                    )}
+                  </div>
                 </div>
                 <div className="flex justify-between items-end">
                   <p className="text-xs tracking-widest text-brand-ash uppercase">Qty: {item.quantity}</p>

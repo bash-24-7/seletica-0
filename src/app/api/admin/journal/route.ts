@@ -24,7 +24,7 @@ export async function GET() {
   if (!isAdmin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const articles = await prisma.journalArticle.findMany({ orderBy: { createdAt: 'desc' } });
+    const articles = await prisma.journalPost.findMany({ orderBy: { createdAt: 'desc' } });
     return NextResponse.json({ success: true, articles });
   } catch (error) {
     return NextResponse.json({ success: true, articles: [] });
@@ -39,14 +39,13 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const article = await prisma.journalArticle.create({
+    const article = await prisma.journalPost.create({
       data: {
         title: body.title,
         slug: body.slug,
         excerpt: body.excerpt,
         content: body.content,
         image: body.image,
-        author: body.author,
         published: body.published || false
       }
     });

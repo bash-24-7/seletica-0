@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     }
 
     try {
-      const existingSubscriber = await prisma.newsletterSubscriber.findUnique({
+      const existingSubscriber = await prisma.subscriber.findUnique({
         where: { email },
       });
 
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: 'Already subscribed' }, { status: 200 });
       }
 
-      const newSubscriber = await prisma.newsletterSubscriber.create({
+      const newSubscriber = await prisma.subscriber.create({
         data: {
           email,
         },
