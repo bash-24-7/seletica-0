@@ -1,0 +1,26 @@
+
+> seletica@0.1.0 start
+> next start
+
+⨯ Failed to start server
+Error: listen EADDRINUSE: address already in use :::3000
+    at <unknown> (Error: listen EADLogin error: Error [PrismaClientInitializationError]: 
+Invalid `prisma.user.findUnique()` invocation:
+
+
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:7
+   | 
+ 6 |   provider = "postgresql"
+ 7 |   url      = env("DATABASE_URL")
+   | 
+
+Validation Error Count: 1
+    at <unknown> (-->  schema.prisma:7)
+    at async F (.next/server/chunks/[root-of-the-server]__1_2al30._.js:1:73671)
+    at async c (.next/server/chunks/[root-of-the-server]__1_2al30._.js:1:77455)
+    at async o (.next/server/chunks/[root-of-the-server]__1_2al30._.js:1:78496) {
+  clientVersion: '6.4.1',
+  errorCode: undefined
+}
+Killed
