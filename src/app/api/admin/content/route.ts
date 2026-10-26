@@ -29,14 +29,14 @@ export async function GET() {
   try {
     let content = [];
     try {
-      content = await prisma.brandContent.findMany({
-        orderBy: { order: 'asc' }
+      content = await prisma.siteContent.findMany({
+        orderBy: { key: 'asc' }
       });
     } catch (e) {
       console.warn("DB offline, falling back to mock content");
       content = [
-        { id: '1', key: 'about_story', title: 'Our Story', subtitle: 'Quiet Luxury', content: 'Default story', isActive: true },
-        { id: '2', key: 'vision_mission', title: 'Our Vision', subtitle: 'Modern Elegance', content: 'Default vision', isActive: true },
+        { id: '1', key: 'about_story', value: 'Default story' },
+        { id: '2', key: 'vision_mission', value: 'Default vision' },
       ];
     }
     return NextResponse.json({ success: true, content });
@@ -54,23 +54,23 @@ export async function PUT(request: Request) {
   }
 
   try {
-    const { id, key, title, subtitle, content, image, isActive, order } = await request.json();
+    const { id, key, value } = await request.json();
 
     let updated;
     try {
       if (id) {
-        updated = await prisma.brandContent.update({
+        updated = await prisma.siteContent.update({
           where: { id },
-          data: { title, subtitle, content, image, isActive, order }
+          data: { key, value }
         });
       } else {
-        updated = await prisma.brandContent.create({
-          data: { key, title, subtitle, content, image, isActive, order }
+        updated = await prisma.siteContent.create({
+          data: { key, value }
         });
       }
     } catch (e) {
       console.warn("DB offline, mocking update");
-      updated = { id: id || 'new-id', key, title, subtitle, content, image, isActive, order };
+      updated = { id: id || 'new-id', key, value };
     }
 
     return NextResponse.json({ success: true, content: updated });
