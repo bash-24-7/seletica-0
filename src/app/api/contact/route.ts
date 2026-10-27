@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db/prisma';
 
-const prisma = new PrismaClient();
+
 
 export async function POST(request: Request) {
   try {
@@ -24,7 +24,5 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Contact message submission error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

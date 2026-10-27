@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db/prisma';
 import { cookies } from 'next/headers';
 import * as jose from 'jose';
 
-const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'seletica_super_secret_jwt_key_2026';
-const secret = new TextEncoder().encode(JWT_SECRET);
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET && process.env.NEXT_PHASE !== 'phase-production-build') {
+  throw new Error('JWT_SECRET environment variable is missing');
+}
+const JWT_SECRET_STRING = JWT_SECRET as string;
+const secret = new TextEncoder().encode(JWT_SECRET_STRING);
 
 async function verifyAdmin() {
   const cookieStore = await cookies();
@@ -42,8 +46,6 @@ export async function GET() {
     return NextResponse.json({ success: true, content });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch content' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -76,7 +78,5 @@ export async function PUT(request: Request) {
     return NextResponse.json({ success: true, content: updated });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update content' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

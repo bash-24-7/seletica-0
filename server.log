@@ -1,63 +1,27 @@
 
-> seletica@0.1.0 start
-> next start
+> seletica@0.1.0 dev
+> next dev
 
-▲ Next.js 16.2.10
-- Local:         http://localhost:3000
-- Network:       http://192.168.0.2:3000
-✓ Ready in 237ms
-Database connection failed in shop/[gender]/[collection]: Error [PrismaClientInitializationError]: 
-Invalid `prisma.product.findMany()` invocation:
+⚠ Port 3000 is in use by an unknown process, using available port 3001 instead.
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3001
+- Network:       http://192.168.0.2:3001
+✓ Ready in 695ms
+⚠ The "middleware" file convention is deprecated. Please use "proxy" instead. Learn more: https://nextjs.org/docs/messages/middleware-to-proxy
 
-
-Can't reach database server at `localhost:5432`
-
-Please make sure your database server is running at `localhost:5432`.
-    at async g (.next/server/chunks/ssr/_074cegu._.js:1:10004) {
-  clientVersion: '6.4.1',
-  errorCode: undefined
-}
-Database connection failed in shop/[gender]/[collection]: Error [PrismaClientInitializationError]: 
-Invalid `prisma.product.findMany()` invocation:
-
-
-Can't reach database server at `localhost:5432`
-
-Please make sure your database server is running at `localhost:5432`.
-    at async g (.next/server/chunks/ssr/_074cegu._.js:1:10004) {
-  clientVersion: '6.4.1',
-  errorCode: undefined
-}
-Database connection failed in shop/[gender]/[collection]: Error [PrismaClientInitializationError]: 
-Invalid `prisma.product.findMany()` invocation:
-
-
-Can't reach database server at `localhost:5432`
-
-Please make sure your database server is running at `localhost:5432`.
-    at async g (.next/server/chunks/ssr/_074cegu._.js:1:10004) {
-  clientVersion: '6.4.1',
-  errorCode: undefined
-}
-Database connection failed in shop/[gender]/[collection]: Error [PrismaClientInitializationError]: 
-Invalid `prisma.product.findMany()` invocation:
-
-
-Can't reach database server at `localhost:5432`
-
-Please make sure your database server is running at `localhost:5432`.
-    at async g (.next/server/chunks/ssr/_074cegu._.js:1:10004) {
-  clientVersion: '6.4.1',
-  errorCode: undefined
-}
-Database connection failed in shop/[gender]/[collection]: Error [PrismaClientInitializationError]: 
-Invalid `prisma.product.findMany()` invocation:
-
-
-Can't reach database server at `localhost:5432`
-
-Please make sure your database server is running at `localhost:5432`.
-    at async g (.next/server/chunks/ssr/_074cegu._.js:1:10004) {
-  clientVersion: '6.4.1',
-  errorCode: undefined
-}
+○ Compiling / ...
+ GET / 200 in 5.4s (next.js: 4.9s, application-code: 456ms)
+[browser] Image with src "/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Image with src "https://images.unsplash.com/photo-1524041255072-7da0525d6b34?q=80&w=2400&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1550639525-c97d455acf70?q=80&w=2400&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+✓ Compiled in 759ms
+✓ Compiled in 649ms
+ GET / 200 in 1181ms (next.js: 587ms, application-code: 594ms)
+[browser] Image with src "https://images.unsplash.com/photo-1524041255072-7da0525d6b34?q=80&w=2400&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1550639525-c97d455acf70?q=80&w=2400&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80&w=2400&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/logo.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+ GET / 200 in 1172ms (next.js: 293ms, application-code: 878ms)
+[browser] Image with src "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80&w=2400&auto=format&fit=crop" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80&w=2400&auto=format&fit=crop" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
