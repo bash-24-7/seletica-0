@@ -1,177 +1,286 @@
 "use client";
 
-import { motion } from "framer-motion";
 import Image from "next/image";
 import { useState, use } from "react";
-import { Heart, Ruler, Truck } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  Heart,
+  Truck,
+  UserCheck,
+  Mail,
+  MapPin,
+  Calendar,
+  Sparkles,
+  Check,
+  Info,
+} from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
+import { CATALOG, OUTSIDE_DHAKA_TAILOR_FEE } from "@/lib/catalog";
 
 export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const router = useRouter();
   const addItem = useCartStore((state) => state.addItem);
 
-  // We are simulating a database fetch. We will make any item with "temp" in ID that ends in "1" a preorder item to match our shop generator.
-  const isPreOrder = resolvedParams.id.includes("temp") && resolvedParams.id.endsWith("1");
+  const matched =
+    CATALOG.find((p) => p.slug === resolvedParams.id || p.id === resolvedParams.id) ||
+    CATALOG[0];
 
-  const handleAddToCart = () => {
-    if (!selectedSize) {
-      alert("Please select a size");
-      return;
-    }
+  const [measurementMethod, setMeasurementMethod] = useState<"IN_PERSON" | "SELF_EMAIL">("IN_PERSON");
+  const [tailorGender, setTailorGender] = useState<"FEMALE" | "MALE">("FEMALE");
+  const [locationZone, setLocationZone] = useState<"INSIDE_DHAKA" | "OUTSIDE_DHAKA">("INSIDE_DHAKA");
+  const [districtDetails, setDistrictDetails] = useState("");
+  const [preferredDate, setPreferredDate] = useState("");
+  const [clientEmailForData, setClientEmailForData] = useState("");
+  const [measurementNotes, setMeasurementNotes] = useState("");
+  const [addedToast, setAddedToast] = useState(false);
+
+  const travelAllowance =
+    measurementMethod === "IN_PERSON" && locationZone === "OUTSIDE_DHAKA"
+      ? OUTSIDE_DHAKA_TAILOR_FEE
+      : 0;
+
+  const totalItemPrice = matched.price + travelAllowance;
+
+  const handleAddToCart = (e: React.FormEvent) => {
+    e.preventDefault();
     addItem({
-      id: resolvedParams.id,
-      name: "Silk Evening Drape",
-      price: 125000,
-      image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2400&auto=format&fit=crop",
+      id: `${resolvedParams.id}-${measurementMethod}-${tailorGender}-${locationZone}`,
+      name: matched.name,
+      price: totalItemPrice,
+      image: matched.images[0],
       quantity: 1,
+      measurementMethod,
+      tailorGender: measurementMethod === "IN_PERSON" ? tailorGender : undefined,
+      locationZone: measurementMethod === "IN_PERSON" ? locationZone : undefined,
+      districtDetails:
+        measurementMethod === "IN_PERSON" && locationZone === "OUTSIDE_DHAKA"
+          ? districtDetails
+          : undefined,
+      preferredDate: measurementMethod === "IN_PERSON" ? preferredDate : undefined,
+      clientEmailForData: measurementMethod === "SELF_EMAIL" ? clientEmailForData : undefined,
+      measurementNotes,
+      travelAllowance,
     });
-    alert(isPreOrder ? "Added to pre-orders" : "Added to cart");
+    setAddedToast(true);
+    setTimeout(() => router.push("/cart"), 700);
   };
 
   return (
-    <div className="max-w-screen-2xl mx-auto px-6 py-12 md:py-24">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24">
-        {/* Image Gallery */}
+    <div className="max-w-screen-2xl mx-auto px-6 pt-28 pb-24 text-brand-white">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
         <div className="flex flex-col gap-4">
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="relative aspect-[3/4] w-full bg-zinc-900"
-          >
-            <Image 
-              src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2400&auto=format&fit=crop"
-              alt="Silk Evening Drape"
-              fill
-              className="object-cover"
-              priority
-            />
-          </motion.div>
-          <div className="grid grid-cols-2 gap-4">
-            {[1, 2].map((i) => (
-              <div key={i} className="relative aspect-[3/4] bg-zinc-900">
-                <Image 
-                  src={`https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2400&auto=format&fit=crop&sig=${i + 20}`}
-                  alt="Detail view"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            ))}
+          <div className="relative aspect-[3/4] w-full bg-zinc-900 overflow-hidden">
+            <Image src={matched.images[0]} alt={matched.name} fill className="object-cover" priority />
           </div>
         </div>
 
-        {/* Product Details */}
         <div className="flex flex-col">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="sticky top-32"
-          >
-            <div className="mb-8">
-              <div className="flex gap-3 mb-6">
-                <div className="inline-block border border-foreground px-3 py-1 text-xs tracking-widest uppercase">
-                  {isPreOrder ? "0 of 10 Available" : "Piece 3 of 10"}
-                </div>
-                <div className={`inline-block px-3 py-1 text-xs tracking-widest uppercase font-medium ${isPreOrder ? "bg-white text-black font-bold" : "bg-zinc-800 text-brand-ash"}`}>
-                  {isPreOrder ? "UPCOMING DESIGN" : "Never Restocked"}
-                </div>
-              </div>
-              <h1 className="font-serif text-4xl lg:text-5xl mb-4">Silk Evening Drape</h1>
-              <p className="text-xl tracking-wider mb-6">৳125,000</p>
-              <p className="text-brand-ash font-light leading-relaxed">
-                A masterpiece of minimalist design. Crafted from 100% heavyweight pure silk, this evening drape embodies modern elegance with its fluid silhouette and impeccable tailoring.
-                {isPreOrder && " This is an upcoming design available for pre-order. Secure your piece before the official release."}
-              </p>
+          <div className="mb-8">
+            <div className="flex flex-wrap gap-3 mb-6">
+              <span className="border border-white/40 px-3 py-1 text-xs tracking-widest uppercase">
+                Piece {matched.stock} of {matched.totalPieces}
+              </span>
+              <span className="px-3 py-1 text-xs tracking-widest uppercase bg-zinc-800 text-brand-ash">
+                Never Restocked • Bespoke Fit
+              </span>
             </div>
+            <h1 className="font-serif text-3xl sm:text-5xl mb-4">{matched.name}</h1>
+            <div className="flex flex-wrap items-baseline gap-4 mb-6">
+              <p className="text-2xl tracking-wider">৳{matched.price.toLocaleString()}</p>
+              {travelAllowance > 0 && (
+                <span className="text-xs uppercase tracking-widest text-amber-200">
+                  + ৳{travelAllowance.toLocaleString()} (Outside Dhaka Tailor Travel & Costing)
+                </span>
+              )}
+            </div>
+            <p className="text-brand-ash font-light leading-relaxed text-sm">{matched.description}</p>
+          </div>
 
-            <div className="mb-10">
+          <form onSubmit={handleAddToCart} className="space-y-6 mb-10">
+            <div className="border-t border-white/10 pt-6">
               <div className="flex justify-between items-center mb-4">
-                <span className="text-sm tracking-widest uppercase">Size</span>
-                <button className="text-xs text-brand-ash flex items-center gap-2 hover:text-foreground transition-colors">
-                  <Ruler size={14} /> Size Guide
+                <span className="text-xs tracking-[0.2em] uppercase flex items-center gap-2 font-medium">
+                  <Sparkles size={14} /> 1. Bespoke Measurement Mapping
+                </span>
+                <span className="text-[10px] uppercase tracking-widest text-brand-ash">
+                  No Prefixed Sizes
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setMeasurementMethod("IN_PERSON")}
+                  className={`p-4 text-left border ${
+                    measurementMethod === "IN_PERSON" ? "border-white bg-white/10" : "border-white/20"
+                  }`}
+                >
+                  <UserCheck size={18} className="mb-2" />
+                  <p className="font-serif text-base mb-1">In-Person Master Tailor</p>
+                  <p className="text-[11px] text-brand-ash">Male or Female mapping person visits you.</p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setMeasurementMethod("SELF_EMAIL")}
+                  className={`p-4 text-left border ${
+                    measurementMethod === "SELF_EMAIL" ? "border-white bg-white/10" : "border-white/20"
+                  }`}
+                >
+                  <Mail size={18} className="mb-2" />
+                  <p className="font-serif text-base mb-1">Self-Provided via Mail</p>
+                  <p className="text-[11px] text-brand-ash">Send measurement data via email (Free).</p>
                 </button>
               </div>
-              <div className="grid grid-cols-4 gap-4">
-                {['XS', 'S', 'M', 'L'].map((size) => (
-                  <button 
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`border py-3 text-sm transition-colors ${
-                      selectedSize === size 
-                        ? 'border-foreground bg-foreground text-background' 
-                        : 'border-white/20 hover:border-foreground'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
             </div>
 
-            <div className="flex gap-4 mb-12">
-              <button 
-                onClick={handleAddToCart}
-                className="flex-1 bg-foreground text-background py-4 text-sm tracking-widest uppercase hover:bg-white/90 transition-colors"
+            {measurementMethod === "IN_PERSON" && (
+              <div className="bg-zinc-900/90 border border-white/15 p-5 space-y-5">
+                <div>
+                  <label className="block text-[11px] uppercase tracking-[0.2em] text-brand-ash mb-2.5">
+                    2. Select Measurement Mapping Person
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setTailorGender("FEMALE")}
+                      className={`py-3 px-4 text-xs uppercase tracking-widest border ${
+                        tailorGender === "FEMALE" ? "border-white bg-white text-black font-semibold" : "border-white/20"
+                      }`}
+                    >
+                      Female Person
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setTailorGender("MALE")}
+                      className={`py-3 px-4 text-xs uppercase tracking-widest border ${
+                        tailorGender === "MALE" ? "border-white bg-white text-black font-semibold" : "border-white/20"
+                      }`}
+                    >
+                      Male Person
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] uppercase tracking-[0.2em] text-brand-ash mb-2.5">
+                    3. Location Zone & Travel Allowance
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setLocationZone("INSIDE_DHAKA")}
+                      className={`p-3.5 text-left border ${
+                        locationZone === "INSIDE_DHAKA" ? "border-white bg-white/10" : "border-white/20"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs uppercase tracking-widest">Inside Dhaka</span>
+                        <span className="text-[10px] text-green-400 font-bold">FREE (৳0)</span>
+                      </div>
+                      <p className="text-[11px] text-brand-ash">Complimentary visit inside Dhaka.</p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setLocationZone("OUTSIDE_DHAKA")}
+                      className={`p-3.5 text-left border ${
+                        locationZone === "OUTSIDE_DHAKA" ? "border-white bg-white/10" : "border-white/20"
+                      }`}
+                    >
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs uppercase tracking-widest">Outside Dhaka</span>
+                        <span className="text-[10px] text-amber-200 font-bold">+৳5,000</span>
+                      </div>
+                      <p className="text-[11px] text-brand-ash">Travel allowance & other costing.</p>
+                    </button>
+                  </div>
+                </div>
+
+                {locationZone === "OUTSIDE_DHAKA" && (
+                  <div>
+                    <label className="block text-[11px] uppercase tracking-[0.2em] text-brand-ash mb-2 flex items-center gap-1.5">
+                      <MapPin size={13} /> District / City Name (Outside Dhaka)
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g., Chattogram, Sylhet, Rajshahi..."
+                      value={districtDetails}
+                      onChange={(e) => setDistrictDetails(e.target.value)}
+                      className="w-full bg-black border border-white/30 px-4 py-3 text-sm text-white"
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-[11px] uppercase tracking-[0.2em] text-brand-ash mb-2 flex items-center gap-1.5">
+                    <Calendar size={13} /> Preferred Visit Date
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={preferredDate}
+                    onChange={(e) => setPreferredDate(e.target.value)}
+                    className="w-full bg-black border border-white/30 px-4 py-3 text-sm text-white"
+                  />
+                </div>
+              </div>
+            )}
+
+            {measurementMethod === "SELF_EMAIL" && (
+              <div className="bg-zinc-900/90 border border-white/15 p-5 space-y-4">
+                <div className="flex items-start gap-2.5 text-xs text-brand-ash">
+                  <Info size={16} className="text-white shrink-0 mt-0.5" />
+                  <p>
+                    Send your measurement data via mail to{" "}
+                    <span className="text-white underline">seletica.official@gmail.com</span>.
+                  </p>
+                </div>
+                <input
+                  type="email"
+                  required
+                  placeholder="Your Email Address"
+                  value={clientEmailForData}
+                  onChange={(e) => setClientEmailForData(e.target.value)}
+                  className="w-full bg-black border border-white/30 px-4 py-3 text-sm text-white"
+                />
+                <textarea
+                  rows={2}
+                  placeholder="Optional Measurements / Notes..."
+                  value={measurementNotes}
+                  onChange={(e) => setMeasurementNotes(e.target.value)}
+                  className="w-full bg-black border border-white/30 p-3 text-sm text-white resize-none"
+                />
+              </div>
+            )}
+
+            <div className="flex gap-4 pt-2">
+              <button
+                type="submit"
+                className="flex-1 bg-white text-black font-semibold py-4 px-6 text-xs tracking-[0.2em] uppercase hover:bg-white/90 flex items-center justify-center gap-2"
               >
-                {isPreOrder ? "Pre-Order Now" : "Add to Cart"}
+                {addedToast ? (
+                  <>
+                    <Check size={16} /> Opening Cart...
+                  </>
+                ) : (
+                  `Add to Cart • ৳${totalItemPrice.toLocaleString()}`
+                )}
               </button>
-              <button className="border border-white/20 p-4 hover:border-foreground transition-colors flex items-center justify-center">
+              <button type="button" className="border border-white/30 p-4 hover:border-white">
                 <Heart size={20} />
               </button>
             </div>
+          </form>
 
-            <div className="border-t border-white/10 pt-8 flex flex-col gap-6">
-              <details className="group cursor-pointer">
-                <summary className="flex justify-between items-center text-sm tracking-widest uppercase font-medium">
-                  Fabric & Craftsmanship
-                  <span className="group-open:rotate-180 transition-transform">+</span>
-                </summary>
-                <div className="mt-4 text-sm text-brand-ash font-light leading-relaxed">
-                  <p className="mb-4">
-                    Cut from fluid, heavy silk crepe de chine sourced from Como, Italy. 
-                    The drape is hand-pinned and finished in our atelier, taking over 40 hours of meticulous craftsmanship.
-                  </p>
-                  <ul className="list-disc pl-4 space-y-2">
-                    <li>100% Heavyweight Pure Silk (22 Momme)</li>
-                    <li>Hand-finished French seams</li>
-                    <li>Concealed invisible side zip</li>
-                    <li>Bespoke hardware detailing</li>
-                  </ul>
-                </div>
-              </details>
-
-              <details className="group cursor-pointer">
-                <summary className="flex justify-between items-center text-sm tracking-widest uppercase font-medium">
-                  Care Guide
-                  <span className="group-open:rotate-180 transition-transform">+</span>
-                </summary>
-                <div className="mt-4 text-sm text-brand-ash font-light leading-relaxed">
-                  <p className="mb-2">This is a delicate garment requiring specialist care.</p>
-                  <ul className="list-disc pl-4 space-y-2">
-                    <li>Specialist dry clean only</li>
-                    <li>Do not tumble dry</li>
-                    <li>Cool iron on reverse</li>
-                    <li>Store flat or on padded hanger</li>
-                  </ul>
-                </div>
-              </details>
-              
-              <details className="group cursor-pointer">
-                <summary className="flex justify-between items-center text-sm tracking-widest uppercase font-medium">
-                  Shipping & Returns
-                  <span className="group-open:rotate-180 transition-transform">+</span>
-                </summary>
-                <div className="mt-4 text-sm text-brand-ash font-light leading-relaxed">
-                  <div className="flex items-start gap-4 mb-4">
-                    <Truck size={20} className="shrink-0 mt-1" />
-                    <p>{isPreOrder ? "Pre-orders will ship on the official release date. Complimentary express global shipping on all limited edition pieces." : "Complimentary express global shipping on all limited edition pieces. Delivery within 3-5 business days."}</p>
-                  </div>
-                  <p>14-day return window. Garment must be unworn with all security tags attached.</p>
-                </div>
-              </details>
-            </div>
-          </motion.div>
+          <div className="border-t border-white/10 pt-6 text-xs text-brand-ash flex items-start gap-3">
+            <Truck size={18} className="shrink-0 text-white" />
+            <p>
+              Inside Dhaka measurement visits are complimentary. Outside Dhaka visits include a ৳5,000 travel & logistics allowance for your Male or Female specialist.
+            </p>
+          </div>
         </div>
       </div>
     </div>
