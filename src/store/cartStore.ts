@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 export interface CartItem {
   id: string;
@@ -7,6 +7,14 @@ export interface CartItem {
   price: number;
   image: string;
   quantity: number;
+  measurementMethod?: "IN_PERSON" | "SELF_EMAIL";
+  tailorGender?: "FEMALE" | "MALE";
+  locationZone?: "INSIDE_DHAKA" | "OUTSIDE_DHAKA";
+  districtDetails?: string;
+  preferredDate?: string;
+  clientEmailForData?: string;
+  measurementNotes?: string;
+  travelAllowance?: number;
 }
 
 interface CartState {
@@ -20,24 +28,26 @@ export const useCartStore = create<CartState>()(
   persist(
     (set) => ({
       items: [],
-      addItem: (item) => set((state) => {
-        const existingItem = state.items.find((i) => i.id === item.id);
-        if (existingItem) {
-          return {
-            items: state.items.map((i) =>
-              i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
-            ),
-          };
-        }
-        return { items: [...state.items, item] };
-      }),
-      removeItem: (id) => set((state) => ({
-        items: state.items.filter((item) => item.id !== id)
-      })),
+      addItem: (item) =>
+        set((state) => {
+          const existingItem = state.items.find((i) => i.id === item.id);
+          if (existingItem) {
+            return {
+              items: state.items.map((i) =>
+                i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i
+              ),
+            };
+          }
+          return { items: [...state.items, item] };
+        }),
+      removeItem: (id) =>
+        set((state) => ({
+          items: state.items.filter((item) => item.id !== id),
+        })),
       clearCart: () => set({ items: [] }),
     }),
     {
-      name: 'seletica-cart-storage',
+      name: "seletica-cart-storage",
       storage: createJSONStorage(() => localStorage),
     }
   )
