@@ -7,7 +7,7 @@ export default async function SubscribersPage() {
   let error = null;
 
   try {
-    subscribers = await prisma.subscriber.findMany({
+    subscribers = await prisma.newsletterSubscriber.findMany({
       orderBy: { createdAt: "desc" },
     });
   } catch (e: any) {

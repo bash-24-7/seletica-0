@@ -7,13 +7,6 @@ export interface CartItem {
   price: number;
   image: string;
   quantity: number;
-  // Bespoke Fitting properties
-  fittingType?: "tailor" | "measurements";
-  tailorGender?: string;
-  tailorAddress?: string;
-  tailorDate?: string;
-  tailorContact?: string;
-  measurementsDetails?: string;
 }
 
 interface CartState {

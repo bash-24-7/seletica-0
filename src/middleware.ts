@@ -1,39 +1,31 @@
-import { NextRequest, NextResponse } from "next/server";
-import { verifyAdminToken } from "@/lib/security";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import * as jose from 'jose';
 
-export async function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-  const token = req.cookies.get("admin_session")?.value;
+const JWT_SECRET = process.env.JWT_SECRET || 'seletica_super_secret_jwt_key_2026';
+const secret = new TextEncoder().encode(JWT_SECRET);
 
-  // Protect Admin UI routes (except login)
-  if (pathname.startsWith("/admin") && !pathname.startsWith("/admin/login")) {
-    const isValid = await verifyAdminToken(token);
-    if (!isValid) {
-      const loginUrl = new URL("/admin/login", req.url);
-      return NextResponse.redirect(loginUrl);
+export async function middleware(request: NextRequest) {
+  const token = request.cookies.get('admin_token')?.value;
+
+  if (request.nextUrl.pathname.startsWith('/admin') && !request.nextUrl.pathname.startsWith('/admin/login')) {
+    if (!token) {
+      console.error('Middleware redirecting to login. Token missing.');
+      return NextResponse.redirect(new URL('/admin/login', request.url));
+    }
+
+    try {
+      await jose.jwtVerify(token, secret);
+      return NextResponse.next();
+    } catch (error) {
+      console.error('Middleware redirecting to login. Token missing.');
+      return NextResponse.redirect(new URL('/admin/login', request.url));
     }
   }
 
-  // Protect Admin API mutation routes (POST, PUT, DELETE)
-  if (
-    pathname.startsWith("/api/admin") &&
-    !pathname.startsWith("/api/admin/login") &&
-    !pathname.startsWith("/api/admin/logout") &&
-    req.method !== "GET"
-  ) {
-    const isValid = await verifyAdminToken(token);
-    if (!isValid) {
-      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
-    }
-  }
-
-  const res = NextResponse.next();
-  res.headers.set("X-Frame-Options", "DENY");
-  res.headers.set("X-Content-Type-Options", "nosniff");
-  res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  return res;
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*"],
+  matcher: ['/admin/:path*'],
 };

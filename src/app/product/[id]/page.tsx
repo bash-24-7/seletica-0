@@ -1,205 +1,177 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import Link from "next/link";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { useState, use } from "react";
+import { Heart, Ruler, Truck } from "lucide-react";
 import { useCartStore } from "@/store/cartStore";
 
-export default function ProductDetailPage() {
-  const params = useParams();
-  const id = params?.id as string;
-  const [product, setProduct] = useState<any>(null);
-  const [added, setAdded] = useState(false);
+export default function ProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = use(params);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const addItem = useCartStore((state) => state.addItem);
 
-  // Bespoke Selection State
-  const [fittingType, setFittingType] = useState<"tailor" | "measurements">("tailor");
-  const [tailorGender, setTailorGender] = useState<string>("Female Master Tailor");
-  const [tailorAddress, setTailorAddress] = useState<string>("");
-  const [tailorDate, setTailorDate] = useState<string>("");
-  const [tailorContact, setTailorContact] = useState<string>("");
-  const [measurementsDetails, setMeasurementsDetails] = useState<string>("");
-
-  useEffect(() => {
-    async function loadProduct() {
-      try {
-        const res = await fetch(`/api/admin/products`);
-        if (res.ok) {
-          const all = await res.json();
-          const found = all.find((p: any) => String(p.id) === String(id));
-          if (found) setProduct(found);
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    loadProduct();
-  }, [id]);
-
-  if (!product) {
-    return (
-      <div className="min-h-screen flex items-center justify-center pt-24">
-        <p className="text-[11px] uppercase tracking-[0.3em] text-neutral-400 animate-pulse">
-          Loading Archive Piece...
-        </p>
-      </div>
-    );
-  }
-
-  let images: string[] = [];
-  try {
-    images = JSON.parse(product.images);
-  } catch {
-    images = [product.images || "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=1200&q=85"];
-  }
+  // We are simulating a database fetch. We will make any item with "temp" in ID that ends in "1" a preorder item to match our shop generator.
+  const isPreOrder = resolvedParams.id.includes("temp") && resolvedParams.id.endsWith("1");
 
   const handleAddToCart = () => {
+    if (!selectedSize) {
+      alert("Please select a size");
+      return;
+    }
     addItem({
-      id: product.id,
-      name: product.name,
-      price: Number(product.price),
-      image: images[0],
+      id: resolvedParams.id,
+      name: "Silk Evening Drape",
+      price: 125000,
+      image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2400&auto=format&fit=crop",
       quantity: 1,
-      fittingType,
-      tailorGender: fittingType === "tailor" ? tailorGender : undefined,
-      tailorAddress: fittingType === "tailor" ? tailorAddress : undefined,
-      tailorDate: fittingType === "tailor" ? tailorDate : undefined,
-      tailorContact: fittingType === "tailor" ? tailorContact : undefined,
-      measurementsDetails: fittingType === "measurements" ? measurementsDetails : undefined,
     });
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2500);
+    alert(isPreOrder ? "Added to pre-orders" : "Added to cart");
   };
 
   return (
-    <div className="pt-28 pb-24 px-6 md:px-12 max-w-[1800px] mx-auto">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-        {/* Left: Zara/Dior Vertical Seamless Image Stack */}
-        <div className="lg:col-span-7 space-y-4">
-          {images.map((img, idx) => (
-            <div key={idx} className="aspect-[3/4] w-full bg-neutral-100 overflow-hidden">
-              <img
-                src={img}
-                alt={`${product.name} - View ${idx + 1}`}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          ))}
+    <div className="max-w-screen-2xl mx-auto px-6 py-12 md:py-24">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-24">
+        {/* Image Gallery */}
+        <div className="flex flex-col gap-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="relative aspect-[3/4] w-full bg-zinc-900"
+          >
+            <Image
+              src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2400&auto=format&fit=crop"
+              alt="Silk Evening Drape"
+              fill
+              className="object-cover"
+              priority
+            />
+          </motion.div>
+          <div className="grid grid-cols-2 gap-4">
+            {[1, 2].map((i) => (
+              <div key={i} className="relative aspect-[3/4] bg-zinc-900">
+                <Image
+                  src={`https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=2400&auto=format&fit=crop&sig=${i + 20}`}
+                  alt="Detail view"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Right: Sticky Couture Details Panel */}
-        <div className="lg:col-span-5">
-          <div className="sticky top-32 space-y-8 max-w-md lg:ml-auto">
-            <div className="space-y-2 border-b border-neutral-200 pb-6">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-neutral-400">
-                SELETICA Archive — Ref. {String(product.id).slice(0, 6).toUpperCase()}
-              </p>
-              <h1 className="font-editorial text-3xl md:text-4xl font-light italic">
-                {product.name}
-              </h1>
-              <p className="text-sm tracking-[0.2em] pt-2">
-                ${Number(product.price).toFixed(2)} USD
+        {/* Product Details */}
+        <div className="flex flex-col">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="sticky top-32"
+          >
+            <div className="mb-8">
+              <div className="flex gap-3 mb-6">
+                <div className="inline-block border border-foreground px-3 py-1 text-xs tracking-widest uppercase">
+                  {isPreOrder ? "0 of 10 Available" : "Piece 3 of 10"}
+                </div>
+                <div className={`inline-block px-3 py-1 text-xs tracking-widest uppercase font-medium ${isPreOrder ? "bg-white text-black font-bold" : "bg-zinc-800 text-brand-ash"}`}>
+                  {isPreOrder ? "UPCOMING DESIGN" : "Never Restocked"}
+                </div>
+              </div>
+              <h1 className="font-serif text-4xl lg:text-5xl mb-4">Silk Evening Drape</h1>
+              <p className="text-xl tracking-wider mb-6">৳125,000</p>
+              <p className="text-brand-ash font-light leading-relaxed">
+                A masterpiece of minimalist design. Crafted from 100% heavyweight pure silk, this evening drape embodies modern elegance with its fluid silhouette and impeccable tailoring.
+                {isPreOrder && " This is an upcoming design available for pre-order. Secure your piece before the official release."}
               </p>
             </div>
 
-            <p className="text-xs leading-relaxed text-neutral-600 font-light">
-              {product.description ||
-                "Crafted with architectural precision from heavyweight luxury textiles. Designed for an elongated, effortless silhouette."}
-            </p>
-
-            {/* Bespoke Atelier Fitting Selector */}
-            <div className="space-y-6 pt-4 border-t border-neutral-200">
-              <div className="flex justify-between items-center text-[10px] uppercase tracking-[0.25em]">
-                <span className="font-semibold text-neutral-900">Bespoke Atelier Fitting</span>
-                <span className="text-neutral-400">Couture Service</span>
-              </div>
-
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setFittingType("tailor")}
-                  className={`flex-1 py-3 text-[10px] uppercase tracking-[0.2em] border transition-colors ${
-                    fittingType === "tailor" ? "border-black bg-black text-white" : "border-neutral-200 text-neutral-500 hover:border-black hover:text-black"
-                  }`}
-                >
-                  At-Home Tailor
-                </button>
-                <button
-                  onClick={() => setFittingType("measurements")}
-                  className={`flex-1 py-3 text-[10px] uppercase tracking-[0.2em] border transition-colors ${
-                    fittingType === "measurements" ? "border-black bg-black text-white" : "border-neutral-200 text-neutral-500 hover:border-black hover:text-black"
-                  }`}
-                >
-                  My Measurements
+            <div className="mb-10">
+              <div className="flex justify-between items-center mb-4">
+                <span className="text-sm tracking-widest uppercase">Size</span>
+                <button className="text-xs text-brand-ash flex items-center gap-2 hover:text-foreground transition-colors">
+                  <Ruler size={14} /> Size Guide
                 </button>
               </div>
-
-              {fittingType === "tailor" && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-500">
-                  <select
-                    value={tailorGender}
-                    onChange={(e) => setTailorGender(e.target.value)}
-                    className="w-full bg-transparent border-b border-neutral-300 py-2 text-[11px] tracking-[0.15em] focus:outline-none focus:border-black uppercase"
+              <div className="grid grid-cols-4 gap-4">
+                {['XS', 'S', 'M', 'L'].map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSize(size)}
+                    className={`border py-3 text-sm transition-colors ${
+                      selectedSize === size
+                        ? 'border-foreground bg-foreground text-background'
+                        : 'border-white/20 hover:border-foreground'
+                    }`}
                   >
-                    <option value="Female Master Tailor">Female Master Tailor</option>
-                    <option value="Male Master Tailor">Male Master Tailor</option>
-                  </select>
-                  <input
-                    type="text"
-                    placeholder="Home Address"
-                    value={tailorAddress}
-                    onChange={(e) => setTailorAddress(e.target.value)}
-                    className="w-full bg-transparent border-b border-neutral-300 py-2 text-[11px] tracking-[0.15em] focus:outline-none focus:border-black placeholder:uppercase placeholder:text-neutral-400"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Preferred Date & Time"
-                    value={tailorDate}
-                    onChange={(e) => setTailorDate(e.target.value)}
-                    className="w-full bg-transparent border-b border-neutral-300 py-2 text-[11px] tracking-[0.15em] focus:outline-none focus:border-black placeholder:uppercase placeholder:text-neutral-400"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Contact Number"
-                    value={tailorContact}
-                    onChange={(e) => setTailorContact(e.target.value)}
-                    className="w-full bg-transparent border-b border-neutral-300 py-2 text-[11px] tracking-[0.15em] focus:outline-none focus:border-black placeholder:uppercase placeholder:text-neutral-400"
-                  />
-                </div>
-              )}
-
-              {fittingType === "measurements" && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-500">
-                  <textarea
-                    placeholder="Enter Exact Measurements (Chest, Waist, Hips, Shoulder, Sleeve, Length) or paste a link to your measurement chart."
-                    value={measurementsDetails}
-                    onChange={(e) => setMeasurementsDetails(e.target.value)}
-                    rows={4}
-                    className="w-full bg-transparent border border-neutral-300 p-3 text-[11px] tracking-[0.15em] focus:outline-none focus:border-black placeholder:uppercase placeholder:text-neutral-400 resize-none"
-                  ></textarea>
-                </div>
-              )}
-            </div>
-
-            {/* Add to Bag Button */}
-            <button
-              onClick={handleAddToCart}
-              className="w-full py-4 bg-black text-white text-[11px] uppercase tracking-[0.3em] hover:bg-neutral-800 transition-colors"
-            >
-              {added ? "Added to Your Bag" : "Add to Shopping Bag"}
-            </button>
-
-            {/* Atelier Specifications */}
-            <div className="pt-6 border-t border-neutral-200 space-y-4 text-[11px] tracking-[0.15em] text-neutral-500">
-              <div className="flex justify-between">
-                <span className="uppercase text-neutral-900">Composition</span>
-                <span>100% Archival Grade Textile</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="uppercase text-neutral-900">Complimentary Shipping</span>
-                <span>Express Couture Delivery</span>
+                    {size}
+                  </button>
+                ))}
               </div>
             </div>
-          </div>
+
+            <div className="flex gap-4 mb-12">
+              <button
+                onClick={handleAddToCart}
+                className="flex-1 bg-foreground text-background py-4 text-sm tracking-widest uppercase hover:bg-white/90 transition-colors"
+              >
+                {isPreOrder ? "Pre-Order Now" : "Add to Cart"}
+              </button>
+              <button className="border border-white/20 p-4 hover:border-foreground transition-colors flex items-center justify-center">
+                <Heart size={20} />
+              </button>
+            </div>
+
+            <div className="border-t border-white/10 pt-8 flex flex-col gap-6">
+              <details className="group cursor-pointer">
+                <summary className="flex justify-between items-center text-sm tracking-widest uppercase font-medium">
+                  Fabric & Craftsmanship
+                  <span className="group-open:rotate-180 transition-transform">+</span>
+                </summary>
+                <div className="mt-4 text-sm text-brand-ash font-light leading-relaxed">
+                  <p className="mb-4">
+                    Cut from fluid, heavy silk crepe de chine sourced from Como, Italy.
+                    The drape is hand-pinned and finished in our atelier, taking over 40 hours of meticulous craftsmanship.
+                  </p>
+                  <ul className="list-disc pl-4 space-y-2">
+                    <li>100% Heavyweight Pure Silk (22 Momme)</li>
+                    <li>Hand-finished French seams</li>
+                    <li>Concealed invisible side zip</li>
+                    <li>Bespoke hardware detailing</li>
+                  </ul>
+                </div>
+              </details>
+
+              <details className="group cursor-pointer">
+                <summary className="flex justify-between items-center text-sm tracking-widest uppercase font-medium">
+                  Care Guide
+                  <span className="group-open:rotate-180 transition-transform">+</span>
+                </summary>
+                <div className="mt-4 text-sm text-brand-ash font-light leading-relaxed">
+                  <p className="mb-2">This is a delicate garment requiring specialist care.</p>
+                  <ul className="list-disc pl-4 space-y-2">
+                    <li>Specialist dry clean only</li>
+                    <li>Do not tumble dry</li>
+                    <li>Cool iron on reverse</li>
+                    <li>Store flat or on padded hanger</li>
+                  </ul>
+                </div>
+              </details>
+
+              <details className="group cursor-pointer">
+                <summary className="flex justify-between items-center text-sm tracking-widest uppercase font-medium">
+                  Shipping & Returns
+                  <span className="group-open:rotate-180 transition-transform">+</span>
+                </summary>
+                <div className="mt-4 text-sm text-brand-ash font-light leading-relaxed">
+                  <div className="flex items-start gap-4 mb-4">
+                    <Truck size={20} className="shrink-0 mt-1" />
+                    <p>{isPreOrder ? "Pre-orders will ship on the official release date. Complimentary express global shipping on all limited edition pieces." : "Complimentary express global shipping on all limited edition pieces. Delivery within 3-5 business days."}</p>
+                  </div>
+                  <p>14-day return window. Garment must be unworn with all security tags attached.</p>
+                </div>
+              </details>
+            </div>
+          </motion.div>
         </div>
       </div>
     </div>

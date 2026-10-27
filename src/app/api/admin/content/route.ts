@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/db/prisma';
 import { cookies } from 'next/headers';
 import * as jose from 'jose';
 
-const prisma = new PrismaClient();
-const JWT_SECRET = process.env.JWT_SECRET || 'seletica_super_secret_jwt_key_2026';
-const secret = new TextEncoder().encode(JWT_SECRET);
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET && process.env.NEXT_PHASE !== 'phase-production-build') {
+  throw new Error('JWT_SECRET environment variable is missing');
+}
+const JWT_SECRET_STRING = JWT_SECRET as string;
+const secret = new TextEncoder().encode(JWT_SECRET_STRING);
 
 async function verifyAdmin() {
   const cookieStore = await cookies();
@@ -29,21 +33,19 @@ export async function GET() {
   try {
     let content = [];
     try {
-      content = await prisma.siteContent.findMany({
-        orderBy: { key: 'asc' }
+      content = await prisma.brandContent.findMany({
+        orderBy: { order: 'asc' }
       });
     } catch (e) {
       console.warn("DB offline, falling back to mock content");
       content = [
-        { id: '1', key: 'about_story', value: 'Default story' },
-        { id: '2', key: 'vision_mission', value: 'Default vision' },
+        { id: '1', key: 'about_story', title: 'Our Story', subtitle: 'Quiet Luxury', content: 'Default story', isActive: true },
+        { id: '2', key: 'vision_mission', title: 'Our Vision', subtitle: 'Modern Elegance', content: 'Default vision', isActive: true },
       ];
     }
     return NextResponse.json({ success: true, content });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to fetch content' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }
 
@@ -54,29 +56,27 @@ export async function PUT(request: Request) {
   }
 
   try {
-    const { id, key, value } = await request.json();
+    const { id, key, title, subtitle, content, image, isActive, order } = await request.json();
 
     let updated;
     try {
       if (id) {
-        updated = await prisma.siteContent.update({
+        updated = await prisma.brandContent.update({
           where: { id },
-          data: { key, value }
+          data: { title, subtitle, content, image, isActive, order }
         });
       } else {
-        updated = await prisma.siteContent.create({
-          data: { key, value }
+        updated = await prisma.brandContent.create({
+          data: { key, title, subtitle, content, image, isActive, order }
         });
       }
     } catch (e) {
       console.warn("DB offline, mocking update");
-      updated = { id: id || 'new-id', key, value };
+      updated = { id: id || 'new-id', key, title, subtitle, content, image, isActive, order };
     }
 
     return NextResponse.json({ success: true, content: updated });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to update content' }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

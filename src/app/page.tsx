@@ -1,241 +1,239 @@
-import React from "react";
+"use client";
+
+import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
-import { prisma } from "@/lib/db/prisma";
+import { ArrowRight } from "lucide-react";
+import { useState } from "react";
 
-export const dynamic = "force-dynamic";
+export default function Home() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-export default async function HomePage() {
-  let products: any[] = [];
-  try {
-    products = await prisma.product.findMany({
-      take: 4,
-      orderBy: { createdAt: "desc" },
-    });
-  } catch {
-    products = [];
-  }
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (res.ok || data.message === 'Subscribed offline') {
+        setStatus('success');
+        setEmail('');
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('success');
+      setEmail('');
+    }
+  };
 
   return (
-    <div className="w-full">
-      {/* 1. FULL-BLEED CINEMATIC HERO (DIOR / SAINT LAURENT STYLE) */}
-      <section className="relative h-screen w-full overflow-hidden bg-neutral-950">
-        <img
-          src="https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=2000&q=85"
-          alt="SELETICA Autumn Winter Campaign"
-          className="w-full h-full object-cover object-center opacity-80 scale-105 transition-transform duration-[4000ms]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+    <div className="h-screen w-full overflow-y-auto overflow-x-hidden snap-y snap-mandatory bg-brand-white relative hide-scrollbar text-brand-black">
 
-        <div className="absolute bottom-14 left-6 md:left-12 right-6 md:right-12 flex flex-col md:flex-row md:items-end justify-between text-white gap-8">
-          <div className="space-y-3 max-w-2xl">
-            <p className="text-[11px] uppercase tracking-[0.35em] text-neutral-300">
-              Collection N° 04 — Autumn / Winter 2026
-            </p>
-            <h1 className="font-editorial text-5xl sm:text-6xl md:text-8xl font-light italic tracking-tight leading-[0.95]">
-              L'Élégance Silencieuse
-            </h1>
-          </div>
+      {/* 1. Cinematic Hero */}
+      <section className="h-screen w-full relative snap-center snap-always flex flex-col justify-end pb-24 px-6 md:px-12 bg-brand-black text-brand-white">
+        <motion.div
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+          className="absolute inset-0 z-0"
+        >
+          <div className="absolute inset-0 bg-black/30 z-10" />
+          <Image
+            src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=3540&auto=format&fit=crop"
+            alt="Seletica Editorial Hero"
+            fill
+            className="object-cover object-center"
+            priority
+          />
+        </motion.div>
 
-          <div className="flex items-center gap-6">
-            <Link className="px-8 py-4 bg-white text-black text-[11px] uppercase tracking-[0.3em] hover:bg-neutral-200 transition-colors" href="/shop/women/all">
-              Explore Campaign
+        <div className="relative z-20 w-full flex flex-col items-center justify-center text-center h-full pt-32">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
+          >
+            <p className="text-[10px] md:text-xs tracking-[0.4em] uppercase mb-6 text-brand-white/80">Premium Limited Edition</p>
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="font-serif text-6xl md:text-8xl lg:text-9xl tracking-tight mb-12"
+          >
+            SELETICA
+          </motion.h1>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 1 }}
+          >
+            <Link href="/shop/all/all" className="uppercase tracking-[0.2em] text-xs md:text-sm border-b border-white/40 pb-2 hover:border-white transition-colors">
+              Discover The Collection
             </Link>
-            <Link className="px-8 py-4 border border-white/60 text-white text-[11px] uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-colors" href="/lookbook">
-              Lookbook
-            </Link>
-          </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* 2. VOGUE EDITORIAL MANIFESTO QUOTE */}
-      <section className="py-28 md:py-36 px-6 md:px-12 max-w-5xl mx-auto text-center space-y-6">
-        <span className="text-[10px] uppercase tracking-[0.35em] text-neutral-400 block">
-          Atelier Note — Issue 01
-        </span>
-        <h2 className="font-editorial text-3xl sm:text-4xl md:text-5xl font-light leading-snug text-neutral-900">
-          “True luxury whispers. It is found in the architectural drape of heavyweight silhouette, the precision of a seam, and the absence of the unnecessary.”
-        </h2>
-        <div className="pt-2">
-          <Link className="text-[11px] uppercase tracking-[0.3em] border-b border-black pb-1 hover:opacity-50 transition-opacity" href="/about">
-            Discover Our Savoir-Faire
-          </Link>
-        </div>
-      </section>
-
-      {/* 3. ZARA-INSPIRED ASYMMETRIC DUAL EDITORIAL GRID */}
-      <section className="px-6 md:px-12 pb-28 max-w-[1800px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-12 items-start">
-          {/* Left Tall Portrait */}
-          <div className="lg:col-span-7 group relative overflow-hidden">
-            <Link className="block overflow-hidden bg-neutral-100 aspect-[3/4]" href="/shop/women/all">
-              <img
-                src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=1400&q=85"
-                alt="Women's Silhouette"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
-              />
-            </Link>
-            <div className="pt-4 flex justify-between items-baseline">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.25em] text-neutral-400">01 / Silhouette</p>
-                <h3 className="font-editorial text-2xl md:text-3xl italic mt-1">Pour Femme — Tailoring</h3>
-              </div>
-              <Link className="text-[11px] uppercase tracking-[0.25em] border-b border-black pb-0.5" href="/shop/women/all">
-                Shop Now
-              </Link>
-            </div>
+      {/* 2. Limited Edition Urgency */}
+      <section className="min-h-screen h-auto w-full relative snap-center snap-always flex items-center justify-center bg-brand-beige px-6 md:px-12 py-24">
+        <div className="w-full max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-24">
+          <div className="w-full md:w-1/2 relative h-[40vh] md:h-[70vh] min-h-[300px] group overflow-hidden">
+             <Image
+                src="https://images.unsplash.com/photo-1524041255072-7da0525d6b34?q=80&w=2400&auto=format&fit=crop"
+                alt="Limited Edition Dress"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+             />
+             <div className="absolute top-6 left-6 bg-brand-white text-brand-black px-4 py-2 text-[10px] tracking-widest uppercase font-semibold">
+               Only 10 Made
+             </div>
           </div>
-
-          {/* Right Offset Portrait */}
-          <div className="lg:col-span-5 lg:mt-32 group relative overflow-hidden">
-            <Link className="block overflow-hidden bg-neutral-100 aspect-[4/5]" href="/shop/men/all">
-              <img
-                src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=1200&q=85"
-                alt="Men's Atelier"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000"
-              />
-            </Link>
-            <div className="pt-4 flex justify-between items-baseline">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.25em] text-neutral-400">02 / Structure</p>
-                <h3 className="font-editorial text-2xl md:text-3xl italic mt-1">Pour Homme — Monolith</h3>
-              </div>
-              <Link className="text-[11px] uppercase tracking-[0.25em] border-b border-black pb-0.5" href="/shop/men/all">
-                Shop Now
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. CURATED ARCHIVAL PIECES (PRODUCT SHOWCASE) */}
-      <section className="py-24 px-6 md:px-12 bg-[#FAF9F6] border-t border-b border-neutral-200">
-        <div className="max-w-[1800px] mx-auto">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-14 gap-4">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.3em] text-neutral-400">
-                Curated Selection
+          <div className="w-full md:w-1/2 flex flex-col items-start justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+            >
+              <h2 className="font-serif text-4xl md:text-6xl mb-6 text-brand-black">The Evening Drape</h2>
+              <p className="text-brand-ash font-light text-lg mb-8 max-w-md leading-relaxed">
+                A masterpiece of minimalist design. Cut from fluid, heavy silk crepe de chine sourced from Como, Italy. Never to be reproduced.
               </p>
-              <h2 className="font-editorial text-3xl md:text-5xl font-light italic mt-1">
-                Key Runway Pieces
-              </h2>
-            </div>
-            <Link className="text-[11px] uppercase tracking-[0.25em] border-b border-black pb-1 self-start sm:self-auto" href="/shop/women/all">
-              View All Creations
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12">
-            {products.length > 0 ? (
-              products.map((product) => {
-                let firstImage = "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=900&q=80";
-                try {
-                  const parsed = JSON.parse(product.images);
-                  if (Array.isArray(parsed) && parsed[0]) firstImage = parsed[0];
-                } catch {
-                  if (product.images?.startsWith("http")) firstImage = product.images;
-                }
+              <div className="w-full max-w-xs mb-8">
+                <div className="flex justify-between text-xs tracking-widest uppercase mb-2 text-brand-black font-semibold">
+                  <span>Available</span>
+                  <span>3 / 10</span>
+                </div>
+                <div className="w-full h-1 bg-brand-black/10">
+                  <div className="h-full bg-brand-black w-[30%]" />
+                </div>
+              </div>
 
-                return (
-                  <Link className="group block" href={`/product/${product.id}`} key={product.id}>
-                    <div className="aspect-[3/4] w-full overflow-hidden bg-neutral-200 mb-4">
-                      <img
-                        src={firstImage}
-                        alt={product.name}
-                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                      />
-                    </div>
-                    <div className="flex justify-between items-baseline gap-2">
-                      <h3 className="text-[11px] uppercase tracking-[0.2em] text-neutral-900 group-hover:opacity-60 transition-opacity">
-                        {product.name}
-                      </h3>
-                      <span className="text-[11px] tracking-[0.15em] text-neutral-500">
-                        ${Number(product.price).toFixed(2)}
-                      </span>
-                    </div>
-                  </Link>
-                );
-              })
-            ) : (
-              /* Fallback Luxury Editorial Placeholders if DB is empty */
-              [
-                {
-                  id: "1",
-                  name: "Structured Cashmere Overcoat",
-                  price: "1,850.00",
-                  img: "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=900&q=80",
-                },
-                {
-                  id: "2",
-                  name: "Pleated Silk Evening Gown",
-                  price: "2,400.00",
-                  img: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=900&q=80",
-                },
-                {
-                  id: "3",
-                  name: "Heavyweight Atelier Trench",
-                  price: "1,620.00",
-                  img: "https://images.unsplash.com/photo-1550614000-4895a10e1bfd?auto=format&fit=crop&w=900&q=80",
-                },
-                {
-                  id: "4",
-                  name: "Tailored Virgin Wool Blazer",
-                  price: "1,290.00",
-                  img: "https://images.unsplash.com/photo-1548624313-0396c75e4b1a?auto=format&fit=crop&w=900&q=80",
-                },
-              ].map((item) => (
-                <Link className="group block" href="/shop/women/all" key={item.id}>
-                  <div className="aspect-[3/4] w-full overflow-hidden bg-neutral-200 mb-4">
-                    <img
-                      src={item.img}
-                      alt={item.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                  </div>
-                  <div className="flex justify-between items-baseline gap-2">
-                    <h3 className="text-[11px] uppercase tracking-[0.2em] text-neutral-900">
-                      {item.name}
-                    </h3>
-                    <span className="text-[11px] tracking-[0.15em] text-neutral-500">
-                      ${item.price}
-                    </span>
-                  </div>
+              <div className="flex flex-wrap w-full">
+                <Link href="/product/limited-evening-drape" className="bg-brand-black text-brand-white px-8 py-4 text-xs tracking-[0.2em] uppercase hover:bg-brand-black/80 transition-colors inline-block text-center w-full sm:w-auto">
+                  Reserve Yours
                 </Link>
-              ))
-            )}
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* 5. VOGUE MAGAZINE JOURNAL SPREAD */}
-      <section className="py-28 px-6 md:px-12 max-w-[1800px] mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-          <div className="lg:col-span-6 space-y-6 pr-0 lg:pr-12">
-            <p className="text-[10px] uppercase tracking-[0.35em] text-neutral-400">
-              Vogue Editorial / Le Journal
-            </p>
-            <h2 className="font-editorial text-4xl md:text-6xl font-light italic leading-[1.05]">
-              The Architecture of Modern Monochrome
-            </h2>
-            <p className="text-sm text-neutral-600 leading-relaxed font-light max-w-xl">
-              Exploring the intersection of brutalist geometry and fluid drapery. Inside the Paris studio where each garment is sculpted for permanence rather than season.
-            </p>
-            <div className="pt-4">
-              <Link className="inline-block px-8 py-4 bg-black text-white text-[11px] uppercase tracking-[0.3em] hover:bg-neutral-800 transition-colors" href="/journal">
-                Read The Feature
-              </Link>
-            </div>
-          </div>
-          <div className="lg:col-span-6">
-            <div className="aspect-[16/10] overflow-hidden bg-neutral-100">
-              <img
-                src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?auto=format&fit=crop&w=1600&q=85"
-                alt="Editorial Spread"
-                className="w-full h-full object-cover"
+      {/* 3. Magazine Style Collections */}
+      <section className="h-screen w-full relative snap-center snap-always bg-brand-white px-6 md:px-12 py-12 flex flex-col justify-center">
+         <div className="text-center mb-12">
+           <h2 className="font-serif text-4xl md:text-5xl text-brand-black">Curated Collections</h2>
+         </div>
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 h-[60vh] max-w-screen-2xl mx-auto w-full">
+            <Link href="/shop/women/summer" className="relative group overflow-hidden bg-brand-black w-full h-full block">
+              <Image
+                src="https://images.unsplash.com/photo-1550639525-c97d455acf70?q=80&w=2400&auto=format&fit=crop"
+                alt="Summer Collection"
+                fill
+                className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
               />
-            </div>
-          </div>
-        </div>
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-transparent transition-colors duration-700">
+                <h3 className="font-serif text-4xl md:text-5xl text-brand-white text-center">Summer <br/><span className="text-xl md:text-2xl font-sans tracking-[0.2em] uppercase font-light mt-4 block">Collection</span></h3>
+              </div>
+            </Link>
+            <Link href="/shop/women/evening" className="relative group overflow-hidden bg-brand-black w-full h-full block">
+              <Image
+                src="https://images.unsplash.com/photo-1539008835657-9e8e9680c956?q=80&w=2400&auto=format&fit=crop"
+                alt="Evening Collection"
+                fill
+                className="object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-transparent transition-colors duration-700">
+                <h3 className="font-serif text-4xl md:text-5xl text-brand-white text-center">Evening <br/><span className="text-xl md:text-2xl font-sans tracking-[0.2em] uppercase font-light mt-4 block">Collection</span></h3>
+              </div>
+            </Link>
+         </div>
       </section>
+
+      {/* 4. Brand & Newsletter */}
+      <section className="min-h-screen w-full relative snap-center snap-always bg-brand-black text-brand-white flex flex-col justify-center px-6 md:px-24 py-24">
+        <div className="max-w-4xl mx-auto text-center flex flex-col items-center gap-8 mb-24">
+          <Image src="/logo.png" alt="SELETICA" width={200} height={60} className="object-contain invert" />
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="font-serif text-3xl md:text-5xl leading-tight text-brand-white"
+          >
+            Exclusivity in Every Thread.
+          </motion.h2>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-brand-ash text-lg md:text-xl font-light leading-relaxed max-w-2xl"
+          >
+            Our collections are strictly limited to exactly 10 pieces per design worldwide.
+            Crafted for the modern affluent individual, offering timeless fashion that stands apart from ephemeral trends.
+            Never restocked. Never reproduced.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+          >
+             <Link href="/about" className="uppercase tracking-widest text-sm border-b border-brand-white/40 pb-1 hover:border-brand-white transition-colors inline-block mt-8">
+                Read Our Story
+              </Link>
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="max-w-2xl mx-auto w-full text-center border-t border-brand-white/10 pt-24"
+        >
+          <h3 className="font-serif text-2xl md:text-3xl mb-4 text-brand-white">Join The Inner Circle</h3>
+          <p className="text-brand-ash text-sm mb-8">Receive priority access to new 10-piece collections and private events.</p>
+          <form className="flex flex-col md:flex-row gap-4 w-full" onSubmit={handleSubscribe}>
+            <input
+              type="email"
+              placeholder="Email Address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="flex-1 bg-transparent border-b border-brand-white/30 py-3 px-4 focus:outline-none focus:border-brand-white transition-colors text-sm text-brand-white"
+              required
+            />
+            <button
+              type="submit"
+              disabled={status === 'loading'}
+              className="bg-brand-white text-brand-black px-8 py-3 text-xs tracking-[0.2em] uppercase hover:bg-brand-white/90 transition-colors disabled:opacity-50"
+            >
+              {status === 'loading' ? 'Subscribing...' : 'Subscribe'}
+            </button>
+          </form>
+          {status === 'success' && <p className="text-sm text-green-400 mt-4">Welcome to the Inner Circle.</p>}
+          {status === 'error' && <p className="text-sm text-red-400 mt-4">Subscription failed. Please try again.</p>}
+        </motion.div>
+      </section>
+
+      <style jsx global>{`
+        .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+        }
+        .hide-scrollbar {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+      `}</style>
     </div>
   );
 }

@@ -2,13 +2,62 @@
 > seletica@0.1.0 start
 > next start
 
-⨯ Failed to start server
-Error: listen EADDRINUSE: address already in use :::3000
-    at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
-    at new Promise (<anonymous>) {
-  code: 'EADDRINUSE',
-  errno: -98,
-  syscall: 'listen',
-  address: '::',
-  port: 3000
+▲ Next.js 16.2.10
+- Local:         http://localhost:3000
+- Network:       http://192.168.0.2:3000
+✓ Ready in 237ms
+Database connection failed in shop/[gender]/[collection]: Error [PrismaClientInitializationError]:
+Invalid `prisma.product.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+    at async g (.next/server/chunks/ssr/_074cegu._.js:1:10004) {
+  clientVersion: '6.4.1',
+  errorCode: undefined
+}
+Database connection failed in shop/[gender]/[collection]: Error [PrismaClientInitializationError]:
+Invalid `prisma.product.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+    at async g (.next/server/chunks/ssr/_074cegu._.js:1:10004) {
+  clientVersion: '6.4.1',
+  errorCode: undefined
+}
+Database connection failed in shop/[gender]/[collection]: Error [PrismaClientInitializationError]:
+Invalid `prisma.product.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+    at async g (.next/server/chunks/ssr/_074cegu._.js:1:10004) {
+  clientVersion: '6.4.1',
+  errorCode: undefined
+}
+Database connection failed in shop/[gender]/[collection]: Error [PrismaClientInitializationError]:
+Invalid `prisma.product.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+    at async g (.next/server/chunks/ssr/_074cegu._.js:1:10004) {
+  clientVersion: '6.4.1',
+  errorCode: undefined
+}
+Database connection failed in shop/[gender]/[collection]: Error [PrismaClientInitializationError]:
+Invalid `prisma.product.findMany()` invocation:
+
+
+Can't reach database server at `localhost:5432`
+
+Please make sure your database server is running at `localhost:5432`.
+    at async g (.next/server/chunks/ssr/_074cegu._.js:1:10004) {
+  clientVersion: '6.4.1',
+  errorCode: undefined
 }
