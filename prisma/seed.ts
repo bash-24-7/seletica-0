@@ -5,7 +5,7 @@ const prisma = new PrismaClient()
 
 async function main() {
   const hashedPassword = await bcrypt.hash('seletica_admin2026', 10)
-  
+
   await prisma.user.upsert({
     where: { email: 'admin@seletica.com' },
     update: { password: hashedPassword, role: 'ADMIN' },

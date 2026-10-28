@@ -15,7 +15,7 @@ async function verifyAdmin() {
   const cookieStore = await cookies();
   const token = cookieStore.get('admin_token')?.value;
   if (!token) return false;
-  
+
   try {
     const { payload } = await jose.jwtVerify(token, secret) as any;
     return payload.role === 'ADMIN';
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    
+
     let product;
     try {
       product = await prisma.product.create({
